@@ -106,7 +106,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Size: {}x{}", width, height);
 
     let start = Instant::now();
-    let steps = 500;
+    let steps = 1200;
     for i in 0..steps {
         let time = (i as f32) * dt_s;
         //println!("Time: {}", time);
@@ -114,7 +114,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Create some sound:
         let source1_offset: usize = ypos * width as usize;
         for i in xpos..xpos + xwidth {
-            present[i + source1_offset] = 1.0 * (2.0 * PI * 40000.0 * time as f32).sin();
+            //            present[i + source1_offset] = 1.0 * (2.0 * PI * 40000.0 * time as f32).sin(); // Continuous source
+            let cycles = 7.0;
+            let delay = 0.00008;
+            let sigma = cycles / (2.0 * PI * 40000.0);
+            present[i + source1_offset] = 1.0
+                * (-0.5 * ((time - delay) / sigma).powf(2.0)).exp()
+                * (2.0 * PI * 40000.0 * (time - delay) as f32).cos(); // Morlet wave packet
         }
 
         // Normal wave update step
